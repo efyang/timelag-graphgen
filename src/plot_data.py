@@ -15,14 +15,17 @@ def plot_data(ax, column_prefix, title, df):
     ax.set_zlabel(titles[2])
 
     cm = plt.get_cmap("viridis")
-    col = np.arange(n)
+    # col = np.arange(n)
+    # seasonal coloring
+    col = np.tile(np.arange(52), n // 52 + 1)[:n]
     size = 15*np.ones(n)
 
     ax.view_init(elev=20, azim=-65)
     ax.set_title(title)
-    ax.set_xlim(0, 100)
-    ax.set_ylim(0, 100)
-    ax.set_zlim(0, 100)
-
     return ax.scatter(xs, ys, zs, facecolors='None', marker='o', s=size, c=col, cmap=cm)
 
+
+def set_all_maxes(ax, m):
+    ax.set_xlim(0, m)
+    ax.set_ylim(0, m)
+    ax.set_zlim(0, m)
