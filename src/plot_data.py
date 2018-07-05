@@ -4,7 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 
-def plot_data(ax, column_prefix, title, df):
+def plot_data(ax, column_prefix, title, df, seasonal=False):
     n = len(df)
     titles = [column_prefix+"_t"+str(i) for i in range(3)]
     xs = df[titles[0]]
@@ -15,12 +15,15 @@ def plot_data(ax, column_prefix, title, df):
     ax.set_zlabel(titles[2])
 
     cm = plt.get_cmap("viridis")
-    # col = np.arange(n)
-    # seasonal coloring
-    col = np.tile(np.arange(52), n // 52 + 1)[:n]
     size = 15*np.ones(n)
+    if seasonal:
+        # seasonal coloring
+        col = np.tile(np.arange(52), n // 52 + 1)[:n]
+    else:
+        col = np.arange(n)
 
-    ax.view_init(elev=20, azim=-65)
+
+    ax.view_init(elev=10, azim=-165)
     ax.set_title(title)
     return ax.scatter(xs, ys, zs, facecolors='None', marker='o', s=size, c=col, cmap=cm)
 
