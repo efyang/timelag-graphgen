@@ -23,6 +23,9 @@ render_flag = "--render" in sys.argv
 custom_lag_length = "--lag" in sys.argv
 args = parser.parse_args()
 
+# set the viewpoint
+# chosen so that the origin is on the bottom-left side of the figure for
+# most easily understandable viewing
 azimuth = -100
 elevation = 10
 
@@ -65,15 +68,15 @@ fig.colorbar(mapping, cax=cbaxes, label=colorbar_label)
 slider_ax = plt.subplot(gs[1, :])
 time_slider = Slider(slider_ax, "Time", 0, num_timesteps,
                      valinit=num_timesteps, valstep=1, valfmt="%0.0f weeks")
-i = 0
+timestep = 0
 
 
 def update_time(val):
-    global i
-    i = time_slider.val
+    global timestep
+    timestep = time_slider.val
     time = int(time_slider.val)
-    update_data(ax, plot, time, args.entries_prefix, entries_lagged, colors)
-    update_data(ax2, plot2, time, args.exits_prefix, exits_lagged, colors)
+    update_data(ax, time, args.entries_prefix, entries_lagged, colors)
+    update_data(ax2, time, args.exits_prefix, exits_lagged, colors)
     set_all_maxes(ax, m)
     set_all_maxes(ax2, m)
     fig.canvas.draw_idle()
@@ -83,11 +86,11 @@ time_slider.on_changed(update_time)
 
 
 def animate(k):
-    global i
-    i += 1
-    i %= num_timesteps
-    print('\r{0:.2f}%'.format(100 * i/num_timesteps), end='')
-    time_slider.set_val(i)
+    global timestep
+    timestep += 1
+    timestep %= num_timesteps
+    print('\r{0:.2f}%'.format(100 * timestep/num_timesteps), end='')
+    time_slider.set_val(timestep)
 
 
 plt.tight_layout()
