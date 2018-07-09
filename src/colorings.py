@@ -27,7 +27,6 @@ def str_to_coloring(s):
             raise Exception("No such coloring: " + s)
 
 
-
 def get_coloring_info(coloring_type, df):
     if coloring_type == Coloring.LINEAR_ALL_TIME:
         cm = plt.get_cmap("viridis")
