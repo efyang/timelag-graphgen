@@ -2,12 +2,13 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.widgets import Slider
 import matplotlib.animation as animation
+import numpy as np
 import argparse
 import sys
 
-from read_data import read_file, process_df
+from read_data import read_file, process_df, find_max_val
 from plot_data import plot_data, set_all_maxes, update_data
-from colorings import *
+from colorings import get_coloring_info, str_to_coloring
 
 
 parser = argparse.ArgumentParser(description="Generate colored 3d lag plots of time-series data")
@@ -17,7 +18,9 @@ parser.add_argument("--render", dest="out_file", required=False)
 parser.add_argument("entries_prefix")
 parser.add_argument('exits_prefix')
 parser.add_argument('data_name')
+parser.add_argument('--lag', dest="lag_len", required=False)
 render_flag = "--render" in sys.argv
+custom_lag_length = "--lag" in sys.argv
 args = parser.parse_args()
 
 azimuth = -100
@@ -26,7 +29,10 @@ elevation = 10
 fig = plt.figure()
 fig.set_size_inches(17, 9)
 
-lag_len_weeks = 1
+if custom_lag_length:
+    lag_len_weeks = int(args.lag_len)
+else:
+    lag_len_weeks = 1
 
 gs = gridspec.GridSpec(2, 3, width_ratios=[1, 1, 0.1], height_ratios=[1, 0.05],
                        left=0.05)
