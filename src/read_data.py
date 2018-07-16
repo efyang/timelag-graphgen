@@ -7,7 +7,11 @@ lowess = sm.nonparametric.lowess
 def process_df(df, prefix, lag_n):
     t = extract_times(df)
     y = df[prefix+"_t0"]
-    return reshape_data(prefix, t, y, lag_n)
+    # with lowess smoothing
+    Z = lowess(y, t, frac=0.5, it=2)
+    return reshape_data(prefix, t, pd.DataFrame(y - Z[:, 1]), lag_n)
+    # without lowess smoothing
+    # return reshape_data(prefix, t, y, lag_n)
 
 
 # read the original csv file
@@ -36,3 +40,11 @@ def reshape_data(prefix, time_col, value_col, lag_n):
 # find the maximum value in the dataframe, used to determine graph scaling and limits later on
 def find_max_val(df, prefix):
     return df[prefix+'_t0'].max()
+
+
+def find_min_val(df, prefix):
+    dmin = df[prefix+'_t0'].min()
+    if dmin < 0:
+        return dmin
+    else:
+        return 0

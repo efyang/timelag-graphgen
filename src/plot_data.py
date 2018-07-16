@@ -21,7 +21,7 @@ def plot_data(ax, column_prefix, title, df, colors):
 
     ax.set_title(title)
     # generate the graph, returning the plot handle
-    return ax.scatter(xs, ys, zs, facecolors='None', marker='o', s=size, c=colors)
+    return ax.scatter(xs, ys, zs, marker='o', s=size, c=colors)
 
 
 def update_data(ax, time, column_prefix, df, colors):
@@ -35,7 +35,7 @@ def update_data(ax, time, column_prefix, df, colors):
 
 
 # set all axes to have a specific max
-def set_all_maxes(ax, m):
-    ax.set_xlim(0, m)
-    ax.set_ylim(0, m)
-    ax.set_zlim(0, m)
+def set_all_limits(ax, dmin, dmax):
+    ax.set_xlim(dmin, dmax)
+    ax.set_ylim(dmin, dmax)
+    ax.set_zlim(dmin, dmax)

@@ -6,8 +6,8 @@ import numpy as np
 import argparse
 import sys
 
-from read_data import read_file, process_df, find_max_val
-from plot_data import plot_data, set_all_maxes, update_data
+from read_data import read_file, process_df, find_max_val, find_min_val
+from plot_data import plot_data, set_all_limits, update_data
 from colorings import get_coloring_info, str_to_coloring
 
 
@@ -41,9 +41,10 @@ gs = gridspec.GridSpec(2, 3, width_ratios=[1, 1, 0.1], height_ratios=[1, 0.05],
                        left=0.05)
 
 df = read_file(args.INPUT_FILE)
-m = max(find_max_val(df, args.entries_prefix), find_max_val(df, args.exits_prefix))
 entries_lagged = process_df(df, args.entries_prefix, lag_len_weeks)
 exits_lagged = process_df(df, args.exits_prefix, lag_len_weeks)
+maxv = max(find_max_val(entries_lagged, args.entries_prefix), find_max_val(exits_lagged, args.exits_prefix))
+minv = min(find_min_val(entries_lagged, args.entries_prefix), find_min_val(exits_lagged, args.exits_prefix))
 num_timesteps = len(entries_lagged)
 
 mapping, colors, colorbar_label = get_coloring_info(str_to_coloring(args.coloring), df)
@@ -57,8 +58,8 @@ ax2 = plt.subplot(gs[1], projection='3d')
 ax2.view_init(elev=elevation, azim=azimuth)
 plot2 = plot_data(ax2, args.exits_prefix, args.exits_prefix, exits_lagged, colors)
 
-set_all_maxes(ax, m)
-set_all_maxes(ax2, m)
+set_all_limits(ax, minv, maxv)
+set_all_limits(ax2, minv, maxv)
 
 
 cbaxes = plt.subplot(gs[2])
@@ -77,8 +78,8 @@ def update_time(val):
     time = int(time_slider.val)
     update_data(ax, time, args.entries_prefix, entries_lagged, colors)
     update_data(ax2, time, args.exits_prefix, exits_lagged, colors)
-    set_all_maxes(ax, m)
-    set_all_maxes(ax2, m)
+    set_all_limits(ax, minv, maxv)
+    set_all_limits(ax2, minv, maxv)
     fig.canvas.draw_idle()
 
 
