@@ -29,17 +29,16 @@ def str_to_coloring(s):
 
 # return the mappable (for the colorbar), color array (for animation),
 # and the label for the colorbar
-def get_coloring_info(coloring_type, df):
+def get_coloring_info(coloring_type, n, dates):
     if coloring_type == Coloring.LINEAR_ALL_TIME:
         cm = plt.get_cmap("viridis")
-        mapping, colors = get_colors_cmap_linear(len(df), cm, False)
+        mapping, colors = get_colors_cmap_linear(n, cm, False)
         colorbar_label = "Time in weeks"
     elif coloring_type == Coloring.LINEAR_SEASONAL:
         cm = plt.get_cmap("viridis")
-        mapping, colors = get_colors_cmap_linear(len(df), cm, True)
+        mapping, colors = get_colors_cmap_linear(n, cm, True)
         colorbar_label = "Time in weeks"
     elif coloring_type == Coloring.DISCRETE_MONTHS:
-        dates = df['Start of interval']
         months = get_months(dates)
         mapping, colors = discrete_colormap(months)
         colorbar_label = "Month"

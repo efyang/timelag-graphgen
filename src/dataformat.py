@@ -14,10 +14,10 @@ class DataFormat:
     def create_lag_cols(self, lag_units, multistate=False):
         if not self.lagged:
             if multistate:
-                groups = ['state', 'caretype']
+                base_groups = ['state', 'caretype']
             else:
-                groups = ['caretype']
-            grouping = self.df.groupby(groups)
+                base_groups = ['caretype']
+            grouping = self.df.groupby(base_groups)
             lag_0 = self.df
             lag_1 = grouping.shift(lag_units)
             lag_2 = grouping.shift(2 * lag_units)
@@ -49,14 +49,12 @@ class WeekSSData(DataFormat):
                 ["entries_t1", "exits_t1", "entries_t2", "exits_t2"], axis=1)
             self.lagged = False
 
-        for caretype in self.df.index.levels[0]:
-            for c in self.df.columns:
-                t = np.arange(len(self.df.loc[caretype, c]))
-                y = self.df.loc[idx[caretype, :], c]
-                # "missing" is so that NaN values aren't dropped
-                z = lowess(y, t, frac=0.5, it=2, missing="none")
-                rep = pd.Series(y - z[:, 1])
-                self.df.loc[idx[caretype, :], c] = rep
+        def apply_lowess_single_col(col):
+            t = np.arange(len(col))
+            # "missing" is so that NaN values aren't dropped
+            z = lowess(col, t, missing="none")
+            return col - z[:, 1]
+        self.df = self.df.groupby(['caretype']).apply(lambda df: df.apply(apply_lowess_single_col))
 
         if was_lagged:
             self.create_lag_cols(self.lag_units)
@@ -87,18 +85,18 @@ class WeekMSData(DataFormat):
 
     # returns list of WeekSSData
     def split_to_ss(self):
-        return []
+        return [
+            WeekSSData(self.df.loc[state], state, lagged=self.lagged)
+            for state in self.df.index.get_level_values('state').unique()
+        ]
 
     def get_ss(self, state_id):
         ret = WeekSSData(
-            self.df.loc[idx[state_id, :], :].reset_index(
-                level="state", drop=True),
+            self.df.loc[state_id],
             state_id,
             lagged=self.lagged)
         ret.lag_units = self.lag_units
         return ret
-
-    # TODO: create aggregate total columns
 
 
 # class DayMSData(DataFormat):
