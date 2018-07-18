@@ -9,14 +9,14 @@ class DataFormat:
     def __init__(self, df, lagged=False):
         self.df = df
         self.lagged = lagged
+        self.lag_units = None
 
-    # TODO: fix currently wrong (wraps onto)
     def create_lag_cols(self, lag_units, multistate=False):
         if not self.lagged:
             if multistate:
                 groups = ['state', 'caretype']
             else:
-                groups = ['state']
+                groups = ['caretype']
             grouping = self.df.groupby(groups)
             lag_0 = self.df
             lag_1 = grouping.shift(lag_units)
@@ -28,6 +28,7 @@ class DataFormat:
                 'entries_t2', 'exits_t2'
             ]
             self.lagged = True
+            self.lag_units = lag_units
 
 
 class WeekSSData(DataFormat):
@@ -41,6 +42,13 @@ class WeekSSData(DataFormat):
     # TODO: if already lagged, the entire lagged column will be NaN again:
     # need to delete and regen
     def apply_lowess_all_cols(self):
+        was_lagged = False
+        if self.lagged:
+            was_lagged = True
+            self.df = self.df.drop(
+                ["entries_t1", "exits_t1", "entries_t2", "exits_t2"], axis=1)
+            self.lagged = False
+
         for caretype in self.df.index.levels[0]:
             for c in self.df.columns:
                 t = np.arange(len(self.df.loc[caretype, c]))
@@ -49,6 +57,9 @@ class WeekSSData(DataFormat):
                 z = lowess(y, t, frac=0.5, it=2, missing="none")
                 rep = pd.Series(y - z[:, 1])
                 self.df.loc[idx[caretype, :], c] = rep
+
+        if was_lagged:
+            self.create_lag_cols(self.lag_units)
 
 
 # class DaySSData(DataFormat):
@@ -64,24 +75,28 @@ class WeekMSData(DataFormat):
     def create_lag_cols(self, lag_units):
         super().create_lag_cols(lag_units, multistate=True)
 
-    def to_national_aggregate(self):
+    def get_national_total(self):
         # min_count to 1 makes empty return NaN instead of 0
-        return WeekSSData(
+        ret = WeekSSData(
             self.df.reset_index(level="state", drop=True).groupby(
                 ['caretype', 'date']).sum(min_count=1),
             "NAT",
             lagged=self.lagged)
+        ret.lag_units = self.lag_units
+        return ret
 
     # returns list of WeekSSData
     def split_to_ss(self):
         return []
 
     def get_ss(self, state_id):
-        return WeekSSData(
+        ret = WeekSSData(
             self.df.loc[idx[state_id, :], :].reset_index(
                 level="state", drop=True),
             state_id,
             lagged=self.lagged)
+        ret.lag_units = self.lag_units
+        return ret
 
     # TODO: create aggregate total columns
 

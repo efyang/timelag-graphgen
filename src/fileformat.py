@@ -13,6 +13,7 @@ class FileFormat:
 
 class WeekPreformatSSFile(FileFormat):
     caretype_mapping = {'CC': 'PCC', 'FC': 'PFC', 'KIN': 'PKC'}
+
     def __init__(self, file_path, state_id):
         self.read_method = pd.read_csv
         self.state_id = state_id
@@ -30,9 +31,17 @@ class WeekPreformatSSFile(FileFormat):
         y = pd.DataFrame(self.df.set_index("date").unstack())
         y.index.names = ['caretype', 'date']
         z = y.reset_index()
-        z[['name', 'caretype']] = z['caretype'].apply(lambda x: x.split('_')[:-1]).apply(pd.Series)
+        z[[
+            'name', 'caretype'
+        ]] = z['caretype'].apply(lambda x: x.split('_')[:-1]).apply(pd.Series)
         z['caretype'] = z['caretype'].apply(lambda x: self.caretype_mapping[x])
-        self.df = z.pivot_table(index=['caretype', 'date'], columns='name', values=0)
+        self.df = z.pivot_table(
+            index=['caretype', 'date'], columns='name', values=0)
+
+        self.df = self.df.append(
+            self.df.groupby(['date']).sum().assign(caretype="PTC")
+            .groupby(['caretype', 'date']).sum())
+
         self.preprocessed = True
 
     def to_weekss_dataformat(self):
@@ -79,6 +88,12 @@ class WeekMSFile(FileFormat):
         self.df = self.df.drop(
             ['county', 'year', 'week4', 'geo1', 'geo'],
             axis=1).groupby(['state', 'caretype', 'date']).sum()
+
+        # determine aggregate total
+        self.df = self.df.append(
+            self.df.groupby(['state', 'date']).sum().assign(caretype="PTC")
+            .groupby(['state', 'caretype', 'date']).sum())
+
         self.preprocessed = True
 
     def to_weekms_dataformat(self):
