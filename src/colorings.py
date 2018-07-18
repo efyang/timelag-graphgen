@@ -4,6 +4,7 @@ import matplotlib.cm as cm
 from matplotlib import colors
 import numpy as np
 from enum import Enum
+import time_offset
 
 
 class Coloring(Enum):
@@ -65,7 +66,7 @@ def get_colors_cmap_linear(n, cmap, seasonal):
 
 # extract a list of month numbers from the date column
 def get_months(dates):
-    return dates.apply(lambda x: x[:x.index('/')]).apply(int)
+    return np.array([x.month for x in dates])
 
 
 # create a discrete colormap (certain colors for certain months)

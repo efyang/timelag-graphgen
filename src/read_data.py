@@ -1,6 +1,7 @@
 import pandas as pd
 import statsmodels.api as sm
 lowess = sm.nonparametric.lowess
+import time_offset
 
 
 # return 3xn datadrame, each column is lagged according to prefix
@@ -22,7 +23,7 @@ def read_file(filename):
 
 # get the time column from the original dataframe
 def extract_times(df):
-    return df["Time"]
+    return df['Time']
 
 
 # return 3xn datadrame, each column is lagged according to prefix
