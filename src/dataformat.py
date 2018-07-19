@@ -13,6 +13,7 @@ class DataFormat:
     def __init__(self, df):
         self.df = df
         self.lag_amount = 1
+        self.title_annotation = ""
 
     def set_lag_amount(self, lag_amount):
         self.lag_amount = lag_amount
@@ -40,7 +41,7 @@ class DataFormat:
             return col - z[:, 1]
 
         new = copy.copy(self)
-
+        new.title_annotation = "(Resid. from Lowess)"
         new.df = self.df.groupby(self.base_groups).apply(
             lambda df: df.apply(apply_lowess_single_col))
         return new
@@ -56,8 +57,8 @@ class WeekSSData(DataFormat):
 
     def to_plotdata(self, caretype, coloring):
         title = self.state_id + " " + caretype + ": lag=" + str(
-            self.lag_amount) + " " + self.lag_units
-        return plotdata.PlotData(self.create_lag_cols().df.loc[caretype],
+            self.lag_amount) + " " + self.lag_units + " " + self.title_annotation
+        return plotdata.PlotData(self.create_lag_cols().df.loc[caretype].reset_index(level="date"),
                                  title, coloring)
 
 
