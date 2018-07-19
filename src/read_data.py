@@ -10,7 +10,7 @@ def process_df(df, prefix, lag_n):
     y = df[prefix+"_t0"]
     # with lowess smoothing
     Z = lowess(y, t)
-    return reshape_data(prefix, t, pd.DataFrame(y - Z[:, 1]), lag_n)
+    return reshape_data(prefix, t, pd.DataFrame(y - Z[:, 1]), df['Start of interval'], lag_n)
     # without lowess smoothing
     # return reshape_data(prefix, t, y, lag_n)
 
@@ -27,14 +27,14 @@ def extract_times(df):
 
 
 # return 3xn datadrame, each column is lagged according to prefix
-def reshape_data(prefix, time_col, value_col, lag_n):
+def reshape_data(prefix, time_col, value_col, date_col, lag_n):
     base = value_col
     lag_1 = value_col.shift(lag_n)
     lag_2 = value_col.shift(2*lag_n)
     # we put everything back together into a nx3 matrix
-    df = pd.concat([base, lag_1, lag_2], axis=1)
+    df = pd.concat([date_col, base, lag_1, lag_2], axis=1)
     # use the original naming scheme
-    df.columns = [prefix+'_t0', prefix+'_t1', prefix+'_t2']
+    df.columns = ["date", prefix+'_t0', prefix+'_t1', prefix+'_t2']
     return df
 
 

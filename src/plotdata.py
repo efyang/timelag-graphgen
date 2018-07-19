@@ -7,6 +7,7 @@ class PlotData:
         self.df = df
         self.n = len(df)
         self.title = title
+        self.coloring = coloring
         self.mapping, self.colors, self.colorbar_label = colorings.get_coloring_info(coloring, self.n,
                                                   self.df.index.values)
 
