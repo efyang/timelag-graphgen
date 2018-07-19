@@ -2,6 +2,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import colorings
 
+from scipy.spatial import ConvexHull
+from matplotlib.tri import Triangulation
 
 # just plot everything
 def plot_data(ax, column_prefix, title, df, colors, coloring):
@@ -19,16 +21,26 @@ def plot_data(ax, column_prefix, title, df, colors, coloring):
 
     ax.set_title(title)
     # generate the graph, returning the plot handle
-    if coloring == colorings.Coloring.DISCRETE_MONTHS:
-        d = {"1 2 3": "+", "4 5 6": "o", "7 8 9": "^", "10 11 12": "D"}
-        for vals, marker in d.items():
+    if coloring == colorings.Coloring.DISCRETE_MONTHS_SPLIT_MARKERS or coloring == colorings.Coloring.DISCRETE_MONTHS_POLYGONS:
+        d = {"1 2 3": ("+", 'b'), "4 5 6": ("o", 'g'), "7 8 9": ("^", 'r'), "10 11 12": ("D", 'y')}
+        for vals, (marker, color) in d.items():
             mask = df['date'].apply(lambda x: x.month in map(int, vals.split(" ")))
             adf = df[mask]
             # get the actual columns
             xs = adf[titles[0]]
             ys = adf[titles[1]]
             zs = adf[titles[2]]
-            ax.scatter(xs, ys, zs, marker=marker, s=size[mask], c=colors[mask])
+
+            if coloring == colorings.Coloring.DISCRETE_MONTHS_POLYGONS:
+                X = np.array(list(zip(xs, ys, zs)))
+                X = X[np.logical_not(np.isnan(zs))]
+                if len(X) > 4:
+                    cvx = ConvexHull(X)
+                    tri = Triangulation(xs, ys, triangles=cvx.simplices)
+                    ax.plot_trisurf(tri, zs, alpha=0.2, color=color)
+                ax.scatter(xs, ys, zs, marker='o', s=size[mask], c=colors[mask])
+            else:
+                ax.scatter(xs, ys, zs, marker=marker, s=size[mask], c=colors[mask])
     else:
         xs = df[titles[0]]
         ys = df[titles[1]]

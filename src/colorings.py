@@ -11,6 +11,8 @@ class Coloring(Enum):
     LINEAR_ALL_TIME = 1
     LINEAR_SEASONAL = 2
     DISCRETE_MONTHS = 3
+    DISCRETE_MONTHS_SPLIT_MARKERS = 4
+    DISCRETE_MONTHS_POLYGONS = 5
 
 
 def str_to_coloring(s):
@@ -20,7 +22,9 @@ def str_to_coloring(s):
     except ValueError:
         map_str = {"linear_all_time": 1,
                    "linear_seasonal": 2,
-                   "discrete_months": 3}
+                   "discrete_months": 3,
+                   "discrete_months_split_markers": 4,
+                   "discrete_months_polygons": 5}
         try:
             i = map_str[s.lower()]
             return Coloring(i)
@@ -39,7 +43,7 @@ def get_coloring_info(coloring_type, n, dates):
         cm = plt.get_cmap("viridis")
         mapping, colors = get_colors_cmap_linear(n, cm, True)
         colorbar_label = "Time in weeks"
-    elif coloring_type == Coloring.DISCRETE_MONTHS:
+    elif coloring_type == Coloring.DISCRETE_MONTHS or coloring_type == Coloring.DISCRETE_MONTHS_SPLIT_MARKERS or coloring_type == Coloring.DISCRETE_MONTHS_POLYGONS:
         months = get_months(dates)
         mapping, colors = discrete_colormap(months)
         colorbar_label = "Month"
@@ -72,7 +76,7 @@ def get_months(dates):
 # create a discrete colormap (certain colors for certain months)
 def discrete_colormap(months):
     cmap = colors.ListedColormap(['b', 'g', 'r', 'y'])
-    bounds = [1, 3, 6, 9, 12]
+    bounds = [0, 4, 7, 10, 13]
     norm = colors.BoundaryNorm(bounds, cmap.N)
     m = cm.ScalarMappable(norm=norm, cmap=cmap)
     m.set_array(months)

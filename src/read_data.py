@@ -9,10 +9,10 @@ def process_df(df, prefix, lag_n):
     t = extract_times(df)
     y = df[prefix+"_t0"]
     # with lowess smoothing
-    Z = lowess(y, t)
-    return reshape_data(prefix, t, pd.DataFrame(y - Z[:, 1]), df['Start of interval'], lag_n)
+    # Z = lowess(y, t)
+    # return reshape_data(prefix, t, pd.DataFrame(y - Z[:, 1]), df['Start of interval'], lag_n)
     # without lowess smoothing
-    # return reshape_data(prefix, t, y, lag_n)
+    return reshape_data(prefix, t, y, df['Start of interval'], lag_n)
 
 
 # read the original csv file
