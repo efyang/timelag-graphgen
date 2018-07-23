@@ -5,11 +5,12 @@ import colorings
 from scipy.spatial import ConvexHull
 from matplotlib.tri import Triangulation
 
+
 # just plot everything
 def plot_data(ax, column_prefix, title, df, colors, coloring):
     n = len(df)
     # get the titles of the columns
-    titles = [column_prefix+"_t"+str(i) for i in range(3)]
+    titles = [column_prefix + "_t" + str(i) for i in range(3)]
 
     # set the axial labesl
     ax.set_xlabel(titles[0])
@@ -17,14 +18,20 @@ def plot_data(ax, column_prefix, title, df, colors, coloring):
     ax.set_zlabel(titles[2])
 
     # generate the size of the dots (vector of size^2)
-    size = 15*np.ones(n)
+    size = 15 * np.ones(n)
 
     ax.set_title(title)
     # generate the graph, returning the plot handle
     if coloring == colorings.Coloring.DISCRETE_MONTHS_SPLIT_MARKERS or coloring == colorings.Coloring.DISCRETE_MONTHS_POLYGONS:
-        d = {"1 2 3": ("+", 'b'), "4 5 6": ("o", 'g'), "7 8 9": ("^", 'r'), "10 11 12": ("D", 'y')}
+        d = {
+            "1 2 3": ("+", 'b'),
+            "4 5 6": ("o", 'g'),
+            "7 8 9": ("^", 'r'),
+            "10 11 12": ("D", 'y')
+        }
         for vals, (marker, color) in d.items():
-            mask = df['date'].apply(lambda x: x.month in map(int, vals.split(" ")))
+            mask = df['date'].apply(
+                lambda x: x.month in map(int, vals.split(" ")))
             adf = df[mask]
             # get the actual columns
             xs = adf[titles[0]]
@@ -38,15 +45,16 @@ def plot_data(ax, column_prefix, title, df, colors, coloring):
                     cvx = ConvexHull(X)
                     tri = Triangulation(xs, ys, triangles=cvx.simplices)
                     ax.plot_trisurf(tri, zs, alpha=0.2, color=color)
-                ax.scatter(xs, ys, zs, marker='o', s=size[mask], c=colors[mask])
+                ax.scatter(
+                    xs, ys, zs, marker='o', s=size[mask], c=colors[mask])
             else:
-                ax.scatter(xs, ys, zs, marker=marker, s=size[mask], c=colors[mask])
+                ax.scatter(
+                    xs, ys, zs, marker=marker, s=size[mask], c=colors[mask])
     else:
         xs = df[titles[0]]
         ys = df[titles[1]]
         zs = df[titles[2]]
         ax.scatter(xs, ys, zs, marker="o", s=size, c=colors)
-
 
     return None
     # return ax.scatter(xs, ys, zs, marker='o', s=size, c=colors)

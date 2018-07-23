@@ -11,6 +11,30 @@ class FileFormat:
         self.preprocessed = False
 
 
+class WeekPreprocessedSSFile(FileFormat):
+    def __init__(self, file_path, state_id):
+        self.read_method = pd.read_csv
+        self.state_id = state_id
+        super().__init__(file_path)
+
+    def generate_time_col(self):
+        included_dates = self.df['date']
+        return included_dates.apply(time_offset.ymd_notation_to_date)
+
+    def preprocess(self):
+        self.df['date'] = self.generate_time_col()
+        self.df = self.df.groupby(['caretype', 'date']).sum()
+        self.preprocessed = True
+
+    def to_weekss_dataformat(self):
+        if not self.preprocessed:
+            self.preprocess()
+        return dataformat.WeekSSData(self.df, self.state_id)
+
+    def to_dataformat(self):
+        return self.to_weekss_dataformat()
+
+
 class WeekPreformatSSFile(FileFormat):
     caretype_mapping = {'CC': 'PCC', 'FC': 'PFC', 'KIN': 'PKC'}
 
@@ -49,6 +73,9 @@ class WeekPreformatSSFile(FileFormat):
             self.preprocess()
         return dataformat.WeekSSData(self.df, self.state_id)
 
+    def to_dataformat(self):
+        return self.to_weekss_dataformat()
+
 
 class DayAggregateSSFile(FileFormat):
     def __init__(self, file_path, state_id):
@@ -64,6 +91,9 @@ class DayAggregateSSFile(FileFormat):
         if not self.preprocessed:
             self.preprocess()
         return dataformat.DaySSData(self.df, self.state_id)
+
+    def to_dataformat(self):
+        return self.to_dayss_dataformat()
 
 
 class WeekMSFile(FileFormat):
@@ -101,7 +131,31 @@ class WeekMSFile(FileFormat):
             self.preprocess()
         return dataformat.WeekMSData(self.df)
 
+    def to_dataformat(self):
+        return self.to_weekms_dataformat()
 
-class DayMSFIle(FileFormat):
+
+class DayMSFile(FileFormat):
     def __init__(self, file_path):
         super().__init__(file_path)
+
+    def to_dayms_dataformat(self):
+        assert(False)
+
+    def to_dataformat(self):
+        return self.to_dayms_dataformat()
+
+
+def str_to_format(s):
+    map_str = {
+        "weekss": WeekPreformatSSFile,
+        "weekssp": WeekPreprocessedSSFile,
+        "dayss": DayAggregateSSFile,
+        "weekms": WeekMSFile,
+        "dayms": DayMSFile,
+    }
+    try:
+        i = map_str[s.lower().replace(' ', '').replace('_', '')]
+        return i
+    except KeyError:
+        raise Exception("No such coloring: " + s)

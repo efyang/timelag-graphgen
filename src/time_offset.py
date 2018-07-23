@@ -14,7 +14,7 @@ def us_notation_to_date(s):
 
 
 def ymd_notation_to_date(s):
-    return datetime.datetime.strptime(s, '%y-%m-%d').date()
+    return datetime.datetime.strptime(s, '%Y-%m-%d').date()
 
 
 def wk_notation_to_date(s):

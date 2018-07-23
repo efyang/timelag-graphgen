@@ -3,6 +3,7 @@ import numpy as np
 import statsmodels.api as sm
 import copy
 import plotdata
+from itertools import chain
 lowess = sm.nonparametric.lowess
 idx = pd.IndexSlice
 
@@ -26,7 +27,7 @@ class DataFormat:
 
         new = copy.copy(self)
 
-        new.df = pd.concat([lag_0, lag_1, lag_2], axis=1)
+        new.df = pd.concat([lag_0, lag_1, lag_2], axis=1).dropna()
         new.df.columns = [
             'entries_t0', 'exits_t0', 'entries_t1', 'exits_t1', 'entries_t2',
             'exits_t2'
@@ -55,17 +56,24 @@ class WeekSSData(DataFormat):
         self.state_id = state_id
         super().__init__(df)
 
+    def write(self, outfile):
+        self.df.to_csv(outfile)
+
     def to_plotdata(self, caretype, coloring):
-        title = self.state_id + " " + caretype + ": lag=" + str(
+        title = "3D Lag Plot for " + self.state_id + " " + caretype + ": lag=" + str(
             self.lag_amount) + " " + self.lag_units + " " + self.title_annotation
         return plotdata.PlotData(self.create_lag_cols().df.loc[caretype].reset_index(level="date"),
-                                 title, coloring)
+                                 title, coloring, caretype, self.lag_units)
 
 
-# class DaySSData(DataFormat):
-# def __init__(self, df, state_id):
-# self.state_id = state_id
-# super().__init__(df)
+# TODO
+class DaySSData(DataFormat):
+    def __init__(self, df, state_id):
+        self.state_id = state_id
+        super().__init__(df)
+
+    def to_plotdata(self, caretype, coloring):
+        assert(False)
 
 
 class WeekMSData(DataFormat):
@@ -86,16 +94,26 @@ class WeekMSData(DataFormat):
     # returns list of WeekSSData
     def split_to_ss(self):
         return [
-            WeekSSData(self.df.loc[state], state)
-            for state in self.df.index.get_level_values('state').unique()
+            self.get_ss(state_id)
+            for state_id in chain(self.df.index.get_level_values('state').unique(), ["NAT"])
         ]
 
     def get_ss(self, state_id):
-        ret = WeekSSData(self.df.loc[state_id], state_id)
-        ret.lag_amount = self.lag_amount
+        if state_id == "NAT":
+            ret = self.get_national_total()
+        else:
+            ret = WeekSSData(self.df.loc[state_id], state_id)
+            ret.lag_amount = self.lag_amount
         return ret
 
 
-# class DayMSData(DataFormat):
-# def __init__(self, df):
-# super().__init__(df)
+# TODO
+class DayMSData(DataFormat):
+    def __init__(self, df):
+        super().__init__(df)
+
+    def split_to_ss(self):
+        assert(False)
+
+    def get_ss(self, state_id):
+        assert(False)

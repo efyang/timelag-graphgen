@@ -16,6 +16,7 @@ for i in range(8):
         ])
 
 X = np.array(X)# compute the convex hull of the points
+print(X)
 cvx = ConvexHull(X)
 
 x, y, z = X.T
