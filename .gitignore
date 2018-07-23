@@ -7,3 +7,5 @@ src/__pycache__
 *.png
 *.mp4
 renderings/*
+*.csv
+preprocessed_data
