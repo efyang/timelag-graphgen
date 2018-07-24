@@ -9,6 +9,7 @@ if multistate:
 else:
     f = args.file_format(args.input_file, args.state_id)
 data = f.to_dataformat()
+data.set_lag_amount(args.lag_len)
 
 # TODO: add preprocess ability
 
@@ -17,12 +18,15 @@ if multistate:
 else:
     ss_data = data
 
-plot_data = ss_data.to_plotdata(args.caretype, args.coloring)
+plot_data = ss_data.to_plotdata(args.caretype, args.coloring, args.drop_yearly)
 
 ui = UI(plot_data, args.limit, args.coloring)
 ui.draw(plot_data.n)
 
 if args.render_flag:
-    ui.render_animation_to_file(args.output_file)
+    if args.render_video:
+        ui.render_animation_to_file(args.output_file)
+    else:
+        ui.render_image_to_file(args.output_file)
 else:
     ui.show_animation()

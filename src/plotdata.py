@@ -7,7 +7,7 @@ from matplotlib.tri import Triangulation
 
 
 class PlotData:
-    def __init__(self, df, title, coloring, caretype, lag_units):
+    def __init__(self, df, title, coloring, caretype, lag_units, drop_yearly):
         self.df = df
         self.n = len(df)
         self.title = title
@@ -15,7 +15,7 @@ class PlotData:
         self.mapping, self.colors, self.colorbar_label = colorings.get_coloring_info(
             coloring, self.n, self.df['date'])
         self.caretype = caretype
-        self.drop_yearly = True
+        self.drop_yearly = drop_yearly
         self.lag_units = lag_units
 
     def plot_data(self, ax, column_prefix, offset=None):
@@ -24,12 +24,11 @@ class PlotData:
             offset = self.n
 
         if offset > 0:
-
             data_portion = self.df[:offset]
             if self.drop_yearly and offset > 0:
-                current_year = self.df.loc[offset - 1]['date'].year
+                current_date = self.df.loc[offset - 1]['date']
                 year_mask = data_portion['date'].apply(
-                    lambda x: current_year - x.year <= 1)
+                    lambda x: (current_date - x).days <= 365.25)
                 data_portion = data_portion[year_mask]
 
             titles = [column_prefix + "_t" + str(i) for i in range(3)]
@@ -39,7 +38,7 @@ class PlotData:
             ax.set_zlabel(titles[2])
 
             # generate the size of the dots (vector of size^2)
-            size = 15 * np.ones(len(data_portion))
+            size = 7 * np.ones(len(data_portion))
 
             if self.coloring == Coloring.DISCRETE_MONTHS_SPLIT_MARKERS or self.coloring == Coloring.DISCRETE_MONTHS_POLYGONS:
                 d = {
@@ -74,7 +73,10 @@ class PlotData:
                 xs = data_portion[titles[0]]
                 ys = data_portion[titles[1]]
                 zs = data_portion[titles[2]]
-                ax.scatter(xs, ys, zs, marker="o", s=size, c=self.colors)
+                if self.drop_yearly:
+                    ax.scatter(xs, ys, zs, marker="o", s=size, c=self.colors[:offset][year_mask])
+                else:
+                    ax.scatter(xs, ys, zs, marker="o", s=size, c=self.colors[:offset])
 
             ax.set_title(self.caretype + " " + column_prefix.capitalize())
 

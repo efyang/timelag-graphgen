@@ -78,7 +78,7 @@ def get_months(dates):
 # create a discrete colormap (certain colors for certain months)
 def discrete_colormap(months):
     cmap = colors.ListedColormap(['b', 'g', 'r', 'y'])
-    bounds = [0, 4, 7, 10, 13]
+    bounds = [1, 4, 7, 10, 13]
     norm = colors.BoundaryNorm(bounds, cmap.N)
     m = cm.ScalarMappable(norm=norm, cmap=cmap)
     m.set_array(months)

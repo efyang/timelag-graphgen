@@ -13,8 +13,8 @@ class UI:
         self.ss_plotdata = ss_plotdata
         self.n = self.ss_plotdata.n
         self.limit = limit
-        self.azimuth = -100
-        self.elevation = 10
+        self.azimuth = 158
+        self.elevation = -154
         self.fig = plt.figure()
         self.fig.set_size_inches(17, 9)
         gs = gridspec.GridSpec(
@@ -80,6 +80,11 @@ class UI:
         print("Rendering....")
         self.ani = animation.FuncAnimation(self.fig, self.animate, np.arange(0, self.n + 1), interval=20, repeat=False)
         self.ani.save(outfile, writer="ffmpeg")
+
+    def render_image_to_file(self, outfile):
+        self.draw(self.n)
+        plt.draw()
+        self.fig.savefig(outfile)
 
     def show_animation(self):
         self.ani = animation.FuncAnimation(self.fig, self.animate, np.arange(0, self.n + 1), interval=20, repeat=True)

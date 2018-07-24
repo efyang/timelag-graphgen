@@ -14,6 +14,8 @@ class CliArgs:
         self.caretype = args.caretype
         self.preprocess_out_dir = args.preprocess_out_dir
         self.render_flag = "--render" in sys.argv
+        self.render_video = self.render_flag and (".mp4" in args.OUTPUT_FILE)
+        self.drop_yearly = "--dropyearly" in sys.argv
         if args.limit:
             self.limit = args.limit
         custom_lag_length = "--lag" in sys.argv
@@ -34,5 +36,6 @@ def get_args():
     parser.add_argument("--caretype", dest="caretype")
     parser.add_argument("--render", dest="OUTPUT_FILE", required=False)
     parser.add_argument('--lag', dest="lag_len", required=False)
+    parser.add_argument("--dropyearly", action='store_true', required=False)
     args = parser.parse_args()
     return CliArgs(args)
