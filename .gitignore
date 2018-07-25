@@ -9,3 +9,4 @@ src/__pycache__
 renderings/*
 *.csv
 preprocessed_data
+*.html
