@@ -13,8 +13,8 @@ class UI:
         self.ss_plotdata = ss_plotdata
         self.n = self.ss_plotdata.n
         self.limit = limit
-        self.azimuth = 158
-        self.elevation = -154
+        self.azimuth = -65
+        self.elevation = 23
         self.fig = plt.figure()
         self.fig.set_size_inches(17, 9)
         gs = gridspec.GridSpec(
