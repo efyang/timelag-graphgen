@@ -30,11 +30,14 @@ def regroup_dates(raw):
 initial_value = 0
 
 monthly = regroup_dates(group_monthly.sum().rename(columns={0: 'net'}))
-monthly['cumsum'] = monthly['net'].cumsum()
-monthly['close'] = initial_value + monthly['cumsum']
+monthly['cumsum'] = initial_value + monthly['net'].cumsum()
+monthly['close'] = monthly['cumsum']
 monthly['open'] = monthly['close'].shift(1).fillna(initial_value)
-monthly['hi'] = group_monthly['cumsum'].max().reset_index()['cumsum']
-monthly['lo'] = group_monthly['cumsum'].min().reset_index()['cumsum']
+monthly['hi'] = initial_value + group_monthly['cumsum'].max().reset_index()['cumsum']
+monthly['lo'] = initial_value + group_monthly['cumsum'].min().reset_index()['cumsum']
+# get the actual maximums including the endpoints
+monthly['hi'] = monthly[['open', 'hi', 'close']].max(axis=1)
+monthly['lo'] = monthly[['open', 'lo', 'close']].min(axis=1)
 
 trace = go.Candlestick(
     x=monthly['date'],
@@ -48,7 +51,7 @@ plotly.offline.plot(
         "data": data,
         "layout": go.Layout(title=state_id + " " + caretype + " MONTHLY")
     },
-    auto_open=True,
+    auto_open=False,
     filename=outfile)
 # print(plotly.offline.plot(
     # {
