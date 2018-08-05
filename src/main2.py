@@ -20,7 +20,7 @@ else:
 
 plot_data = ss_data.to_plotdata(args.caretype, args.coloring, args.drop_yearly)
 
-ui = UI(plot_data, args.limit, args.coloring)
+ui = UI(plot_data, args.limit, args.coloring, args.ppf)
 ui.draw(plot_data.n)
 
 if args.render_flag:

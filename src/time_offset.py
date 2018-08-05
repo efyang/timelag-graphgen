@@ -13,6 +13,10 @@ def us_notation_to_date(s):
     return datetime.datetime.strptime(s, '%m/%d/%y').date()
 
 
+def us_notation_long_to_date(s):
+    return datetime.datetime.strptime(s, '%m/%d/%Y').date()
+
+
 def ymd_notation_to_date(s):
     return datetime.datetime.strptime(s, '%Y-%m-%d').date()
 

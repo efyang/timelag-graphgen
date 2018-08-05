@@ -9,9 +9,10 @@ import calendar
 
 
 class UI:
-    def __init__(self, ss_plotdata, limit, coloring):
+    def __init__(self, ss_plotdata, limit, coloring, ppf):
         self.ss_plotdata = ss_plotdata
         self.n = self.ss_plotdata.n
+        self.ppf = ppf
         self.limit = limit
         self.azimuth = -65
         self.elevation = 23
@@ -78,7 +79,7 @@ class UI:
 
     def render_animation_to_file(self, outfile):
         print("Rendering....")
-        self.ani = animation.FuncAnimation(self.fig, self.animate, np.arange(0, self.n + 1), interval=20, repeat=False)
+        self.ani = animation.FuncAnimation(self.fig, self.animate, self.ppf * np.arange(0, (self.n + 1) // self.ppf), interval=20, repeat=False)
         self.ani.save(outfile, writer="ffmpeg")
 
     def render_image_to_file(self, outfile):
@@ -87,7 +88,7 @@ class UI:
         self.fig.savefig(outfile)
 
     def show_animation(self):
-        self.ani = animation.FuncAnimation(self.fig, self.animate, np.arange(0, self.n + 1), interval=20, repeat=True)
+        self.ani = animation.FuncAnimation(self.fig, self.animate, self.ppf * np.arange(0, (self.n + 1) // self.ppf), interval=20, repeat=True)
         plt.show()
 
     def render_image(self, offset):

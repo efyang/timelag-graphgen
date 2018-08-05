@@ -11,6 +11,7 @@ class CliArgs:
         self.coloring = str_to_coloring(args.coloring)
         self.state_id = args.state_id
         self.output_file = args.OUTPUT_FILE
+        self.ppf = args.ppf
         self.caretype = args.caretype
         self.preprocess_out_dir = args.preprocess_out_dir
         self.render_flag = "--render" in sys.argv
@@ -19,6 +20,8 @@ class CliArgs:
         if args.limit:
             self.limit = args.limit
         custom_lag_length = "--lag" in sys.argv
+        if not self.ppf:
+            self.ppf = 1
         if custom_lag_length:
             self.lag_len = int(args.lag_len)
         else:
@@ -37,5 +40,6 @@ def get_args():
     parser.add_argument("--render", dest="OUTPUT_FILE", required=False)
     parser.add_argument('--lag', dest="lag_len", required=False)
     parser.add_argument("--dropyearly", action='store_true', required=False)
+    parser.add_argument('--ppf', dest="ppf", type=int, required=False)
     args = parser.parse_args()
     return CliArgs(args)
