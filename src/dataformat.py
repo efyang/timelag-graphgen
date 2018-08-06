@@ -60,6 +60,7 @@ class WeekSSData(DataFormat):
         self.df.to_csv(outfile)
 
     def to_plotdata(self, caretype, coloring, drop_yearly):
+        print(self.lag_amount)
         title = "3D Lag Plot for " + self.state_id + " " + caretype + ": lag=" + str(
             self.lag_amount) + " " + self.lag_units + " " + self.title_annotation
         return plotdata.PlotData(self.create_lag_cols().df.loc[caretype].reset_index(level="date"),
@@ -87,6 +88,7 @@ class DaySSData(DataFormat):
 
 class WeekMSData(DataFormat):
     base_groups = ['state', 'caretype']
+    lag_units = "Weeks"
 
     def __init__(self, df):
         super().__init__(df)
@@ -119,6 +121,7 @@ class WeekMSData(DataFormat):
 # TODO
 class DayMSData(DataFormat):
     base_groups = ['state', 'caretype']
+    lag_units = "Days"
 
     def __init__(self, df):
         super().__init__(df)

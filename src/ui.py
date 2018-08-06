@@ -72,14 +72,15 @@ class UI:
             set_all_limits(self.entry_ax, 0, self.limit)
 
     def animate(self, k):
-        self.timestep += 1
+        self.timestep += self.ppf
         self.timestep %= self.n
         print('\r{0:.2f}%'.format(100 * self.timestep/self.n), end='')
         self.time_slider.set_val(self.timestep)
+        return []
 
     def render_animation_to_file(self, outfile):
         print("Rendering....")
-        self.ani = animation.FuncAnimation(self.fig, self.animate, self.ppf * np.arange(0, (self.n + 1) // self.ppf), interval=20, repeat=False)
+        self.ani = animation.FuncAnimation(self.fig, self.animate, self.ppf * np.arange(0, (self.n + 1) // self.ppf), interval=20, repeat=False, blit=True)
         self.ani.save(outfile, writer="ffmpeg")
 
     def render_image_to_file(self, outfile):
@@ -88,7 +89,7 @@ class UI:
         self.fig.savefig(outfile)
 
     def show_animation(self):
-        self.ani = animation.FuncAnimation(self.fig, self.animate, self.ppf * np.arange(0, (self.n + 1) // self.ppf), interval=20, repeat=True)
+        self.ani = animation.FuncAnimation(self.fig, self.animate, self.ppf * np.arange(0, (self.n + 1) // self.ppf), interval=20, repeat=True, blit=True)
         plt.show()
 
     def render_image(self, offset):
