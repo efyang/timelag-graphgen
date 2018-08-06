@@ -191,17 +191,19 @@ class DayMSFile(FileFormat):
         return self.to_dayms_dataformat()
 
 
+fileformat_map_str = {
+    "weekss": WeekPreformatSSFile,
+    "weekssp": WeekPreprocessedSSFile,
+    "dayss": DayAggregateSSFile,
+    "dayssp": DayPreprocessedSSFile,
+    "weekms": WeekMSFile,
+    "dayms": DayMSFile,
+}
+
+
 def str_to_format(s):
-    map_str = {
-        "weekss": WeekPreformatSSFile,
-        "weekssp": WeekPreprocessedSSFile,
-        "dayss": DayAggregateSSFile,
-        "dayssp": DayPreprocessedSSFile,
-        "weekms": WeekMSFile,
-        "dayms": DayMSFile,
-    }
     try:
-        i = map_str[s.lower().replace(' ', '').replace('_', '')]
+        i = fileformat_map_str[s.lower().replace(' ', '').replace('_', '')]
         return i
     except KeyError:
         raise Exception("No such coloring: " + s)

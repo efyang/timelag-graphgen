@@ -9,11 +9,12 @@ import calendar
 
 
 class UI:
-    def __init__(self, ss_plotdata, limit, coloring, ppf):
+    def __init__(self, ss_plotdata, min_limit, max_limit, coloring, ppf):
         self.ss_plotdata = ss_plotdata
         self.n = self.ss_plotdata.n
         self.ppf = ppf
-        self.limit = limit
+        self.min_limit = min_limit
+        self.max_limit = max_limit
         self.azimuth = -65
         self.elevation = 23
         self.fig = plt.figure()
@@ -67,9 +68,8 @@ class UI:
         self.fig.canvas.draw_idle()
 
     def set_limit(self):
-        if self.limit:
-            set_all_limits(self.exit_ax, 0, self.limit)
-            set_all_limits(self.entry_ax, 0, self.limit)
+        set_all_limits(self.exit_ax, self.min_limit, self.max_limit)
+        set_all_limits(self.entry_ax, self.min_limit, self.max_limit)
 
     def animate(self, k):
         self.timestep += self.ppf

@@ -15,20 +15,22 @@ class Coloring(Enum):
     DISCRETE_MONTHS_POLYGONS = 5
 
 
+colorings_map_str = {
+    "linear_all_time": 1,
+    "linear_seasonal": 2,
+    "discrete_months": 3,
+    "discrete_months_split_markers": 4,
+    "discrete_months_polygons": 5
+}
+
+
 def str_to_coloring(s):
     try:
         i = int(s)
         return Coloring(i)
     except ValueError:
-        map_str = {
-            "linear_all_time": 1,
-            "linear_seasonal": 2,
-            "discrete_months": 3,
-            "discrete_months_split_markers": 4,
-            "discrete_months_polygons": 5
-        }
         try:
-            i = map_str[s.lower()]
+            i = colorings_map_str[s.lower()]
             return Coloring(i)
         except KeyError:
             raise Exception("No such coloring: " + s)

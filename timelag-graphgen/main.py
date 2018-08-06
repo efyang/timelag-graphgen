@@ -18,9 +18,20 @@ if multistate:
 else:
     ss_data = data
 
+if args.lowess:
+    ss_data = ss_data.apply_lowess()
+
 plot_data = ss_data.to_plotdata(args.caretype, args.coloring, args.drop_yearly)
 
-ui = UI(plot_data, args.limit, args.coloring, args.ppf)
+# autoscale
+if args.limit is None:
+    min_limit = plot_data.df.drop('date', axis=1).min().min()
+    max_limit = plot_data.df.drop('date', axis=1).max().max()
+else:
+    min_limit = 0
+    max_limit = args.limit
+
+ui = UI(plot_data, min_limit, max_limit, args.coloring, args.ppf)
 ui.draw(plot_data.n)
 
 if args.render_flag:
